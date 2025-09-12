@@ -1,0 +1,311 @@
+.App {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Estilos para el sidebar */
+.sidebar-fixed {
+  transition: all 0.3s ease;
+  z-index: 1010 !important;
+}
+
+.sidebar-fixed .nav-link {
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.sidebar-fixed .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transform: translateX(5px);
+}
+
+.sidebar-fixed .nav-link.bg-primary {
+  background-color: #0d6efd !important;
+  border-left: 4px solid #ffffff;
+}
+
+/* Responsive para el sidebar */
+@media (max-width: 768px) {
+  .sidebar-fixed {
+    display: none !important;
+  }
+  
+  .container-fluid[style*="marginLeft"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Prevenir scroll horizontal */
+body {
+  overflow-x: hidden;
+}
+
+.container-fluid {
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Main content area */
+.main-content {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  max-width: calc(100% - 250px);
+}
+
+/* Fix para dropdown en el header */
+.navbar .dropdown-menu {
+  z-index: 1050 !important;
+  position: absolute !important;
+  top: 100% !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+.navbar .dropdown {
+  position: relative !important;
+}
+
+.navbar .dropdown-menu.show {
+  display: block !important;
+  z-index: 1050 !important;
+  position: absolute !important;
+}
+
+/* Asegurar que el dropdown se posicione correctamente */
+.navbar-nav .dropdown-menu {
+  position: absolute !important;
+  z-index: 1050 !important;
+}
+
+/* Override específico para el dropdown con data-bs-popper */
+.dropdown-menu[data-bs-popper] {
+  position: absolute !important;
+  z-index: 1050 !important;
+  top: 100% !important;
+  left: auto !important;
+  right: 0 !important;
+}
+
+/* Sobrescribir z-index del navbar fixed-top */
+.navbar.fixed-top {
+  z-index: 1020 !important;
+}
+
+/* Fix específico para popper.js */
+.navbar-nav .dropdown-menu-end[data-bs-popper] {
+  position: absolute !important;
+  z-index: 1055 !important;
+  right: 0 !important;
+  left: auto !important;
+  top: calc(100% + 2px) !important;
+  transform: none !important;
+}
+
+/* Contenedor del dropdown debe tener position relative */
+.navbar-nav .nav-item.dropdown {
+  position: relative !important;
+}
+
+/* Dropdown personalizado */
+.custom-dropdown {
+  position: absolute !important;
+  z-index: 9999 !important;
+  top: calc(100% + 5px) !important;
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  border: 1px solid rgba(0,0,0,.15) !important;
+  border-radius: 0.375rem !important;
+  background-color: #fff !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  min-width: 200px !important;
+}
+
+.custom-dropdown.show {
+  display: block !important;
+}
+
+/* Sobrescribir todos los estilos de Bootstrap Popper */
+.custom-dropdown[data-bs-popper] {
+  position: absolute !important;
+  z-index: 9999 !important;
+  top: calc(100% + 5px) !important;
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+/* Estilos personalizados para notificaciones */
+.custom-toast-container {
+  top: 70px !important; /* Debajo del header fijo */
+  right: 15px !important;
+  width: auto !important;
+  max-width: 400px !important;
+}
+
+.custom-toast {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  font-family: var(--bs-font-sans-serif) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+/* Colores de borde derecho para diferentes tipos */
+.Toastify__toast--success {
+  border-right: 4px solid #198754;
+}
+
+.Toastify__toast--error {
+  border-right: 4px solid #dc3545;
+}
+
+.Toastify__toast--warning {
+  border-right: 4px solid #fd7e14;
+}
+
+.Toastify__toast--info {
+  border-right: 4px solid #0dcaf0;
+}
+
+/* Estilos para iconos de toast */
+.toast-icon {
+  margin-right: 8px;
+  font-size: 1.1em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Colores específicos para iconos */
+.Toastify__toast--success .toast-icon {
+  color: #198754;
+}
+
+.Toastify__toast--error .toast-icon {
+  color: #dc3545;
+}
+
+.Toastify__toast--warning .toast-icon {
+  color: #fd7e14;
+}
+
+.Toastify__toast--info .toast-icon {
+  color: #0dcaf0;
+}
+
+.Toastify__toast--loading .toast-icon {
+  color: #6c757d;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Personalizar el botón de cerrar */
+.Toastify__close-button {
+  color: currentColor !important;
+  opacity: 0.8 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+/* Personalizar la barra de progreso */
+.custom-toast-progress {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.Toastify__progress-bar--success {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.Toastify__progress-bar--error {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: rgba(33, 37, 41, 0.8) !important;
+}
+
+.Toastify__progress-bar--info {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Animaciones mejoradas */
+.Toastify__slide-enter--top-right {
+  animation-duration: 0.4s !important;
+}
+
+.Toastify__slide-exit--top-right {
+  animation-duration: 0.3s !important;
+}
+
+/* Iconos para los toast */
+.toast-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
