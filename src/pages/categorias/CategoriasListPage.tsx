@@ -19,9 +19,8 @@ const CategoriasListPage: React.FC = () => {
     try {
       setLoading(true);
       
-      const response = await getCategorias();
-      console.log('Respuesta del backend:', response); // Debug temporal
-      const todasCategorias = response.data.categorias || [];
+  const response = await getCategorias();
+  const todasCategorias = response.data.categorias || [];
       setTodasLasCategorias(todasCategorias);
     } catch (error) {
       console.error('Error cargando categorías:', error);

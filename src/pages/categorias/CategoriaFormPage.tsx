@@ -36,9 +36,9 @@ const CategoriaFormPage: React.FC = () => {
     const cargarCategoria = async (categoriaId: number) => {
       try {
         setLoadingData(true);
-        console.log('Cargando categoría con ID:', categoriaId); // Debug
+        
         const categoria = await getCategoria(categoriaId);
-        console.log('Categoría recibida:', categoria); // Debug
+        
         
         if (!categoria) {
           throw new Error('No se recibieron datos de la categoría');

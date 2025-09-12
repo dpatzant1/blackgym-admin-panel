@@ -93,12 +93,6 @@ const ProductosListPage: React.FC = () => {
       };
       
       const response = await getProductos(filters);
-      console.log('Respuesta de productos:', response); // Debug
-      console.log('Productos con categorías:', response.data.productos.map(p => ({
-        id: p.id,
-        nombre: p.nombre,
-        categorias: p.categorias
-      }))); // Debug
       
       const todosProductos = response.data.productos || [];
       setTodosLosProductos(todosProductos);
