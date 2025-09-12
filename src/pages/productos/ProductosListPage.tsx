@@ -289,8 +289,9 @@ const ProductosListPage: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Tabla responsiva */}
-              <div className="table-responsive">
+              {/* Desktop: Tabla responsiva; Móvil: lista de tarjetas */}
+              {/* Tabla (oculto en pantallas xs) */}
+              <div className="table-responsive d-none d-sm-block">
                 <table className="table table-hover align-middle">
                   <thead className="table-dark">
                     <tr>
@@ -410,6 +411,41 @@ const ProductosListPage: React.FC = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Lista de tarjetas para pantallas pequeñas */}
+              <div className="d-block d-sm-none">
+                <div className="row g-3">
+                  {productosPaginados.map((producto: Producto) => (
+                    <div key={producto.id} className="col-12">
+                      <div className="card shadow-sm">
+                        <div className="card-body d-flex gap-3 align-items-start">
+                          <div style={{width: 64, height: 64, flexShrink: 0}}>
+                            {producto.imagen_url ? (
+                              <img src={producto.imagen_url} alt={producto.nombre} className="rounded" style={{width: '64px', height: '64px', objectFit: 'cover'}} />
+                            ) : (
+                              <div className="bg-light rounded d-flex align-items-center justify-content-center" style={{width: '64px', height: '64px'}}>
+                                <i className="fas fa-image text-muted"></i>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-grow-1">
+                            <div className="d-flex justify-content-between align-items-start">
+                              <h6 className="mb-1">{producto.nombre}</h6>
+                              <strong className="text-success">{formatearPrecio(producto.precio)}</strong>
+                            </div>
+                            <p className="mb-1 small text-muted">{producto.descripcion && producto.descripcion.length > 80 ? `${producto.descripcion.substring(0,80)}...` : producto.descripcion}</p>
+                            <div className="d-flex gap-2 align-items-center mt-2">
+                              <Link to={`/productos/editar/${producto.id}`} className="btn btn-outline-primary btn-sm">Editar</Link>
+                              <button className="btn btn-outline-danger btn-sm" onClick={() => confirmarEliminacion(producto)}>Eliminar</button>
+                              <span className="ms-auto small text-muted">{producto.stock} unidades</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Paginación */}

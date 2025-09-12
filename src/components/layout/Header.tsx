@@ -32,15 +32,19 @@ const Header: React.FC = () => {
         </button>
 
         {/* Navegación principal */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          {/* Spacer para empujar el usuario a la derecha */}
-          <div className="navbar-nav me-auto"></div>
+        <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
+          {/* Navegación principal (incluye enlaces que se mostrarán también en móvil) */}
+          {/* Enlaces que solo se muestran en móvil (ocultos en pantallas grandes) */}
+          <div className="navbar-nav me-auto d-lg-none">
+            <Link className="nav-link text-end" to="/productos">Productos</Link>
+            <Link className="nav-link text-end" to="/categorias">Categorías</Link>
+          </div>
 
           {/* Información del usuario y logout */}
           <div className="navbar-nav">
             <div className="nav-item dropdown">
               <a
-                className="nav-link dropdown-toggle text-light"
+                className="nav-link dropdown-toggle text-light text-end"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
