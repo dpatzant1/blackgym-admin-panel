@@ -15,16 +15,6 @@ const KPISection: React.FC<KPISectionProps> = ({ ventasKPI, productosKPI }) => {
     }).format(value);
   };
 
-  // Función para formatear número con separador de miles
-  const formatNumber = (value: number): string => {
-    return new Intl.NumberFormat('es-GT').format(value);
-  };
-
-  // Determinar el color de la comparativa según si es positivo o negativo
-  const getComparativaColor = (valor: number): string => {
-    return valor >= 0 ? '#6ab187' : '#d32d42';
-  };
-
   return (
     <div className="row g-3">
       {/* KPI de Ventas Totales */}
