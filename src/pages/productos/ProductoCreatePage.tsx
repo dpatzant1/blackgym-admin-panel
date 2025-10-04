@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductoForm from '../../components/forms/ProductoForm';
 import { createProducto } from '../../services/productosService';
-import { showSuccess, showApiError } from '../../utils/toast';
+import { showSuccess, showApiError, showError } from '../../utils/toast';
+import { usePermisos } from '../../hooks';
 import type { ProductoFormData } from '../../types';
 
 const ProductoCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
+  const { puede } = usePermisos();
+  
+  // Verificar permiso al cargar la página
+  useEffect(() => {
+    if (!puede('productos.crear')) {
+      showError('No tienes permiso para crear productos');
+      navigate('/productos');
+    }
+  }, [puede, navigate]);
 
   const handleSubmit = async (data: ProductoFormData) => {
     try {

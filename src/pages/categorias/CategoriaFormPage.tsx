@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { createCategoria, updateCategoria, getCategoria } from '../../services/categoriasService';
-import { showSuccess, showApiError } from '../../utils/toast';
+import { showSuccess, showApiError, showError } from '../../utils/toast';
+import { usePermisos } from '../../hooks';
 import type { CreateCategoriaRequest, UpdateCategoriaRequest } from '../../types';
 
 interface FormData {
@@ -14,9 +15,15 @@ const CategoriaFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
+  const { puede } = usePermisos();
   
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEdit);
+
+  // Determinar si es modo solo lectura
+  const soloLectura = isEdit
+    ? !puede('categorias.editar') && puede('categorias.leer')
+    : false;
 
   const {
     register,
@@ -30,6 +37,23 @@ const CategoriaFormPage: React.FC = () => {
       descripcion: ''
     }
   });
+
+  // Verificar permisos al montar
+  useEffect(() => {
+    // Verificar permiso para crear
+    if (!isEdit && !puede('categorias.crear')) {
+      showError('No tienes permisos para crear categorías');
+      navigate('/categorias');
+      return;
+    }
+
+    // Verificar permiso para editar o leer
+    if (isEdit && !puede('categorias.editar') && !puede('categorias.leer')) {
+      showError('No tienes permisos para ver esta categoría');
+      navigate('/categorias');
+      return;
+    }
+  }, [isEdit, puede, navigate]);
 
   // Cargar datos de la categoría si estamos editando
   useEffect(() => {
@@ -122,15 +146,28 @@ const CategoriaFormPage: React.FC = () => {
     <div className="container-fluid px-3">
       <div className="row">
         <div className="col-12">
+          {/* Alerta de modo solo lectura */}
+          {soloLectura && (
+            <div className="alert alert-info d-flex align-items-center mb-3" role="alert">
+              <i className="bi bi-info-circle-fill me-2"></i>
+              <div>
+                <strong>Modo solo lectura:</strong> No tienes permisos para editar esta categoría.
+              </div>
+            </div>
+          )}
+
           {/* Header de la página */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h1 className="h3 mb-0">
-                <i className="bi bi-tag me-2 text-primary"></i>
-                {isEdit ? 'Editar Categoría' : 'Nueva Categoría'}
+                <i className={`bi ${soloLectura ? 'bi-eye' : 'bi-tag'} me-2 text-primary`}></i>
+                {soloLectura ? 'Ver Categoría' : (isEdit ? 'Editar Categoría' : 'Nueva Categoría')}
               </h1>
               <p className="text-muted mb-0">
-                {isEdit ? 'Modifica los datos de la categoría' : 'Completa los datos para crear una nueva categoría'}
+                {soloLectura 
+                  ? 'Visualización de la categoría en modo solo lectura'
+                  : (isEdit ? 'Modifica los datos de la categoría' : 'Completa los datos para crear una nueva categoría')
+                }
               </p>
             </div>
             <button
@@ -160,7 +197,7 @@ const CategoriaFormPage: React.FC = () => {
                         id="nombre"
                         className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
                         placeholder="Ej: Suplementos, Equipos, Ropa Deportiva..."
-                        disabled={loading}
+                        disabled={loading || soloLectura}
                         {...register('nombre', {
                           required: 'El nombre es obligatorio',
                           minLength: {
@@ -199,7 +236,7 @@ const CategoriaFormPage: React.FC = () => {
                         rows={4}
                         className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
                         placeholder="Describe brevemente qué tipos de productos incluye esta categoría..."
-                        disabled={loading}
+                        disabled={loading || soloLectura}
                         {...register('descripcion', {
                           maxLength: {
                             value: 500,
@@ -220,43 +257,57 @@ const CategoriaFormPage: React.FC = () => {
 
                     {/* Botones de acción */}
                     <div className="d-flex flex-column flex-sm-row gap-2 justify-content-end">
-                      {!isEdit && (
+                      {!soloLectura && (
+                        <>
+                          {!isEdit && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary"
+                              onClick={handleReset}
+                              disabled={loading}
+                            >
+                              <i className="bi bi-arrow-clockwise me-1"></i>
+                              Limpiar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleCancel}
+                            disabled={loading}
+                          >
+                            <i className="bi bi-x-circle me-1"></i>
+                            Cancelar
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                {isEdit ? 'Actualizando...' : 'Creando...'}
+                              </>
+                            ) : (
+                              <>
+                                <i className={`bi ${isEdit ? 'bi-check-circle' : 'bi-plus-circle'} me-1`}></i>
+                                {isEdit ? 'Actualizar Categoría' : 'Crear Categoría'}
+                              </>
+                            )}
+                          </button>
+                        </>
+                      )}
+                      {soloLectura && (
                         <button
                           type="button"
-                          className="btn btn-outline-secondary"
-                          onClick={handleReset}
-                          disabled={loading}
+                          className="btn btn-secondary"
+                          onClick={handleCancel}
                         >
-                          <i className="bi bi-arrow-clockwise me-1"></i>
-                          Limpiar
+                          <i className="bi bi-arrow-left me-1"></i>
+                          Volver
                         </button>
                       )}
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={handleCancel}
-                        disabled={loading}
-                      >
-                        <i className="bi bi-x-circle me-1"></i>
-                        Cancelar
-                      </button>
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            {isEdit ? 'Actualizando...' : 'Creando...'}
-                          </>
-                        ) : (
-                          <>
-                            <i className={`bi ${isEdit ? 'bi-check-circle' : 'bi-plus-circle'} me-1`}></i>
-                            {isEdit ? 'Actualizar Categoría' : 'Crear Categoría'}
-                          </>
-                        )}
-                      </button>
                     </div>
                   </form>
                 </div>

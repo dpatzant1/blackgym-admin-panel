@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthContextType, Admin, LoginCredentials } from '../types/auth';
 import { AuthContext } from './AuthContext';
+import { getProfile, verifyCredentials } from '../services/authService';
 
 // Props para el provider
 interface AuthProviderProps {
@@ -25,37 +26,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      // Verificar credenciales con el backend
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/administradores/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usuario: storedUser,
-          password: storedPassword
-        })
-      });
+      // Obtener perfil completo con información de rol
+      const profileResponse = await getProfile();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.success && data.data.authenticated) {
+      if (profileResponse.success && profileResponse.data.admin) {
+        const adminData = profileResponse.data.admin;
         setIsAuthenticated(true);
-        setAdmin(data.data.admin);
+        setAdmin(adminData);
+        
+        // Persistir información de rol en localStorage
+        localStorage.setItem('admin-data', JSON.stringify(adminData));
       } else {
         // Limpiar localStorage si las credenciales no son válidas
         localStorage.removeItem('admin-user');
         localStorage.removeItem('admin-password');
+        localStorage.removeItem('admin-data');
       }
     } catch (error) {
       console.error('Error verificando autenticación:', error);
       // Limpiar localStorage en caso de error
       localStorage.removeItem('admin-user');
       localStorage.removeItem('admin-password');
+      localStorage.removeItem('admin-data');
       // Si el backend no está disponible, permitir acceso sin autenticación para desarrollo
       if (import.meta.env.DEV) {
         console.warn('Modo desarrollo: Backend no disponible, permitiendo acceso');
@@ -72,24 +64,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/administradores/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials)
-      });
+      // Primero verificar credenciales
+      const verifyResponse = await verifyCredentials(credentials);
 
-      const data = await response.json();
-
-      if (data.success && data.data.authenticated) {
+      if (verifyResponse.success && verifyResponse.data.authenticated) {
         // Guardar credenciales en localStorage
         localStorage.setItem('admin-user', credentials.usuario);
         localStorage.setItem('admin-password', credentials.password);
         
-        // Actualizar estado
-        setIsAuthenticated(true);
-        setAdmin(data.data.admin);
+        // Obtener perfil completo con información de rol
+        const profileResponse = await getProfile();
+        
+        if (profileResponse.success && profileResponse.data && profileResponse.data.admin) {
+          const adminData = profileResponse.data.admin;
+          
+          // Actualizar estado
+          setIsAuthenticated(true);
+          setAdmin(adminData);
+          
+          // Persistir información completa del admin incluyendo rol
+          localStorage.setItem('admin-data', JSON.stringify(adminData));
+        } else {
+          throw new Error('No se pudo obtener el perfil del administrador');
+        }
         
         return true;
       } else {
@@ -108,6 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Limpiar localStorage
     localStorage.removeItem('admin-user');
     localStorage.removeItem('admin-password');
+    localStorage.removeItem('admin-data');
     
     // Limpiar estado
     setIsAuthenticated(false);

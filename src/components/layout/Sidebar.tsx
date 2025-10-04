@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { usePermisos } from '../../hooks';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const { esAdmin, puede } = usePermisos();
 
   // Función para determinar si una ruta está activa
   const isActiveRoute = (path: string): boolean => {
@@ -32,7 +34,14 @@ const Sidebar: React.FC = () => {
           <li className="nav-item">
             <Link to="/" className={getLinkClasses('/')}>
               <i className="bi bi-house-door-fill me-3"></i>
-              <span>Dashboard</span>
+              <span>Inicio</span>
+            </Link>
+          </li>
+          
+          <li className="nav-item mt-1">
+            <Link to="/dashboard" className={getLinkClasses('/dashboard')}>
+              <i className="bi bi-graph-up me-3"></i>
+              <span>Dashboard Ventas</span>
             </Link>
           </li>
           
@@ -49,6 +58,43 @@ const Sidebar: React.FC = () => {
               <span>Productos</span>
             </Link>
           </li>
+          
+          <li className="nav-item mt-1">
+            <Link to="/ordenes" className={getLinkClasses('/ordenes')}>
+              <i className="bi bi-cart-check-fill me-3"></i>
+              <span>Órdenes</span>
+            </Link>
+          </li>
+          
+          {/* Separador para opciones administrativas */}
+          {(esAdmin() || puede('bitacora.leer')) && (
+            <li className="nav-item mt-3 mb-2">
+              <div className="px-3">
+                <small className="text-white text-uppercase fw-bold">Administración</small>
+              </div>
+            </li>
+          )}
+          
+          {/* Opción de Usuarios - Solo visible para administradores */}
+          {esAdmin() && (
+            <li className="nav-item mt-1">
+              <Link to="/administradores" className={getLinkClasses('/administradores')}>
+                <i className="bi bi-people-fill me-3"></i>
+                <span>Usuarios</span>
+              </Link>
+            </li>
+          )}
+          
+          {/* Opción de Bitácora - Oculta para esta demo
+          {puede('bitacora.leer') && (
+            <li className="nav-item mt-1">
+              <Link to="/bitacora" className={getLinkClasses('/bitacora')}>
+                <i className="bi bi-journal-text me-3"></i>
+                <span>Bitácora</span>
+              </Link>
+            </li>
+          )}
+          */}
         </ul>
       </nav>
 

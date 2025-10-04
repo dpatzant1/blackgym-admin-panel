@@ -8,3 +8,9 @@ export * from './categoria';
 
 // Tipos de productos
 export * from './producto';
+
+// Tipos de órdenes
+export * from './orden';
+
+// Tipos de dashboard
+export * from './dashboard';

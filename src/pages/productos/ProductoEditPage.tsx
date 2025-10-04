@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProductoForm from '../../components/forms/ProductoForm';
 import { getProducto, updateProducto } from '../../services/productosService';
-import { showSuccess, showApiError } from '../../utils/toast';
+import { showSuccess, showApiError, showError } from '../../utils/toast';
+import { usePermisos } from '../../hooks';
 import type { Producto, ProductoFormData } from '../../types';
 
 const ProductoEditPage: React.FC = () => {
@@ -11,9 +12,20 @@ const ProductoEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [producto, setProducto] = useState<Producto | null>(null);
+  const { puede } = usePermisos();
+  
+  // Verificar si solo tiene permiso de lectura
+  const soloLectura = !puede('productos.editar') && puede('productos.leer');
 
-  // Cargar datos del producto
+  // Verificar permisos y cargar datos del producto
   useEffect(() => {
+    // Verificar si tiene permiso para ver/editar productos
+    if (!puede('productos.editar') && !puede('productos.leer')) {
+      showError('No tienes permiso para ver productos');
+      navigate('/productos');
+      return;
+    }
+    
     const cargarProducto = async () => {
       if (!id) {
         navigate('/productos');
@@ -34,7 +46,7 @@ const ProductoEditPage: React.FC = () => {
     };
 
     cargarProducto();
-  }, [id, navigate]);
+  }, [id, navigate, puede]);
 
   const handleSubmit = async (data: ProductoFormData) => {
     if (!id || !producto) return;
@@ -114,14 +126,23 @@ const ProductoEditPage: React.FC = () => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h1 className="h3 mb-0">
-                <i className="bi bi-pencil me-2 text-primary"></i>
-                Editar Producto
+                <i className={`bi ${soloLectura ? 'bi-eye' : 'bi-pencil'} me-2 text-primary`}></i>
+                {soloLectura ? 'Ver Producto' : 'Editar Producto'}
               </h1>
               <p className="text-muted mb-0">
-                Modificando: <strong>{producto.nombre}</strong>
+                {soloLectura ? 'Visualizando' : 'Modificando'}: <strong>{producto.nombre}</strong>
               </p>
             </div>
           </div>
+
+          {/* Alerta de solo lectura */}
+          {soloLectura && (
+            <div className="alert alert-info mb-4">
+              <i className="bi bi-info-circle me-2"></i>
+              <strong>Modo solo lectura:</strong> No tienes permisos para editar productos. 
+              Solo puedes visualizar la información.
+            </div>
+          )}
 
           {/* Formulario */}
           <div className="card">
@@ -131,6 +152,7 @@ const ProductoEditPage: React.FC = () => {
                 onSubmit={handleSubmit}
                 isLoading={submitting}
                 submitText="Actualizar Producto"
+                disabled={soloLectura}
               />
             </div>
           </div>

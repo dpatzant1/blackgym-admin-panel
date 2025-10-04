@@ -4,7 +4,7 @@ import { getProductos, deleteProducto } from '../../services/productosService';
 import { getCategorias } from '../../services/categoriasService';
 import { showSuccess, showApiError } from '../../utils/toast';
 import { ConfirmDeleteModal } from '../../components/common';
-import { useConfirmDelete } from '../../hooks';
+import { useConfirmDelete, usePermisos } from '../../hooks';
 import type { Producto, Categoria, ProductoFilters, PaginationData } from '../../types';
 
 const ProductosListPage: React.FC = () => {
@@ -24,6 +24,9 @@ const ProductosListPage: React.FC = () => {
   
   // Hook para manejar el modal de confirmación de eliminación
   const deleteModal = useConfirmDelete<Producto>();
+  
+  // Hook de permisos
+  const { puede } = usePermisos();
 
   // Filtrar productos localmente (como en la página de categorías)
   const productosFiltrados = useMemo(() => {
@@ -182,10 +185,12 @@ const ProductosListPage: React.FC = () => {
             {pagination.totalItems} producto{pagination.totalItems !== 1 ? 's' : ''} encontrado{pagination.totalItems !== 1 ? 's' : ''}
           </p>
         </div>
-        <Link to="/productos/nuevo" className="btn btn-primary">
-          <i className="fas fa-plus me-2"></i>
-          Agregar Producto
-        </Link>
+        {puede('productos.crear') && (
+          <Link to="/productos/nuevo" className="btn btn-primary">
+            <i className="fas fa-plus me-2"></i>
+            Agregar Producto
+          </Link>
+        )}
       </div>
 
       {/* Filtros */}
@@ -280,7 +285,7 @@ const ProductosListPage: React.FC = () => {
                   ? 'Intenta ajustar tus filtros de búsqueda'
                   : 'Comienza agregando tu primer producto'}
               </p>
-              {!searchTerm && !selectedCategoria && (
+              {!searchTerm && !selectedCategoria && puede('productos.crear') && (
                 <Link to="/productos/nuevo" className="btn btn-primary mt-2">
                   <i className="fas fa-plus me-2"></i>
                   Agregar Primer Producto
@@ -389,23 +394,33 @@ const ProductosListPage: React.FC = () => {
 
                         {/* Acciones */}
                         <td>
-                          <div className="btn-group btn-group-sm" role="group">
-                            <Link
-                              to={`/productos/editar/${producto.id}`}
-                              className="btn btn-outline-primary"
-                              title="Editar producto"
-                            >
-                              <i className="bi bi-pencil me-1"></i>
-                            </Link>
-                            <button
-                              type="button"
-                              className="btn btn-outline-danger"
-                              onClick={() => confirmarEliminacion(producto)}
-                              title="Eliminar producto"
-                            >
-                              <i className="bi bi-trash me-1"></i>
-                            </button>
-                          </div>
+                          {puede('productos.editar') || puede('productos.eliminar') ? (
+                            <div className="btn-group btn-group-sm" role="group">
+                              {puede('productos.editar') && (
+                                <Link
+                                  to={`/productos/editar/${producto.id}`}
+                                  className="btn btn-outline-primary"
+                                  title="Editar producto"
+                                >
+                                  <i className="bi bi-pencil me-1"></i>
+                                </Link>
+                              )}
+                              {puede('productos.eliminar') && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-danger"
+                                  onClick={() => confirmarEliminacion(producto)}
+                                  title="Eliminar producto"
+                                >
+                                  <i className="bi bi-trash me-1"></i>
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted small" title="No tienes permisos para modificar productos">
+                              <i className="bi bi-lock"></i> Solo lectura
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -436,8 +451,15 @@ const ProductosListPage: React.FC = () => {
                             </div>
                             <p className="mb-1 small text-muted">{producto.descripcion && producto.descripcion.length > 80 ? `${producto.descripcion.substring(0,80)}...` : producto.descripcion}</p>
                             <div className="d-flex gap-2 align-items-center mt-2">
-                              <Link to={`/productos/editar/${producto.id}`} className="btn btn-outline-primary btn-sm">Editar</Link>
-                              <button className="btn btn-outline-danger btn-sm" onClick={() => confirmarEliminacion(producto)}>Eliminar</button>
+                              {puede('productos.editar') && (
+                                <Link to={`/productos/editar/${producto.id}`} className="btn btn-outline-primary btn-sm">Editar</Link>
+                              )}
+                              {puede('productos.eliminar') && (
+                                <button className="btn btn-outline-danger btn-sm" onClick={() => confirmarEliminacion(producto)}>Eliminar</button>
+                              )}
+                              {!puede('productos.editar') && !puede('productos.eliminar') && (
+                                <span className="small text-muted"><i className="bi bi-lock"></i> Solo lectura</span>
+                              )}
                               <span className="ms-auto small text-muted">{producto.stock} unidades</span>
                             </div>
                           </div>

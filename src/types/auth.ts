@@ -1,9 +1,17 @@
 // Tipos para el sistema de autenticación
 
+export interface Rol {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
+
 export interface Admin {
   id: number;
   usuario: string;
   creado_en: string;
+  rol_id?: number;
+  rol?: Rol;
 }
 
 export interface LoginCredentials {

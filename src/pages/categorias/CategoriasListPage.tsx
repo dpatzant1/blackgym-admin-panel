@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getCategorias, deleteCategoria } from '../../services/categoriasService';
 import { showSuccess, showApiError } from '../../utils/toast';
 import { ConfirmDeleteModal } from '../../components/common';
-import { useConfirmDelete } from '../../hooks';
+import { useConfirmDelete, usePermisos } from '../../hooks';
 import type { Categoria } from '../../types';
 
 const CategoriasListPage: React.FC = () => {
@@ -13,6 +13,9 @@ const CategoriasListPage: React.FC = () => {
   
   // Hook para manejar el modal de confirmación de eliminación
   const deleteModal = useConfirmDelete<Categoria>();
+  
+  // Hook de permisos
+  const { puede } = usePermisos();
 
   // Cargar todas las categorías del backend
   const cargarTodasLasCategorias = useCallback(async () => {
@@ -85,13 +88,15 @@ const CategoriasListPage: React.FC = () => {
               </h1>
               <p className="text-muted mb-0">Administra las categorías de productos del gimnasio</p>
             </div>
-            <Link 
-              to="/categorias/nuevo" 
-              className="btn btn-primary"
-            >
-              <i className="bi bi-plus-circle me-2"></i>
-              Agregar Categoría
-            </Link>
+            {puede('categorias.crear') && (
+              <Link 
+                to="/categorias/nuevo" 
+                className="btn btn-primary"
+              >
+                <i className="bi bi-plus-circle me-2"></i>
+                Agregar Categoría
+              </Link>
+            )}
           </div>
 
           {/* Filtros y búsqueda */}
@@ -137,7 +142,7 @@ const CategoriasListPage: React.FC = () => {
                       ? 'No se encontraron categorías con los filtros aplicados.' 
                       : 'Aún no has creado ninguna categoría.'}
                   </p>
-                  {!searchTerm && (
+                  {!searchTerm && puede('categorias.crear') && (
                     <Link to="/categorias/nuevo" className="btn btn-primary mt-3">
                       <i className="bi bi-plus-circle me-2"></i>
                       Crear primera categoría
@@ -167,25 +172,36 @@ const CategoriasListPage: React.FC = () => {
                             )}
 
                             {/* Botones de acción */}
-                            <div className="d-flex gap-2 mt-auto">
-                              <Link
-                                to={`/categorias/${categoria.id}/editar`}
-                                className="btn btn-outline-primary btn-sm flex-fill"
-                                title="Editar categoría"
-                              >
-                                <i className="bi bi-pencil me-1"></i>
-                                Editar
-                              </Link>
-                              <button
-                                type="button"
-                                className="btn btn-outline-danger btn-sm flex-fill"
-                                title="Eliminar categoría"
-                                onClick={() => deleteModal.openModal(categoria)}
-                              >
-                                <i className="bi bi-trash me-1"></i>
-                                Eliminar
-                              </button>
-                            </div>
+                            {puede('categorias.editar') || puede('categorias.eliminar') ? (
+                              <div className="d-flex gap-2 mt-auto">
+                                {puede('categorias.editar') && (
+                                  <Link
+                                    to={`/categorias/${categoria.id}/editar`}
+                                    className="btn btn-outline-primary btn-sm flex-fill"
+                                    title="Editar categoría"
+                                  >
+                                    <i className="bi bi-pencil me-1"></i>
+                                    Editar
+                                  </Link>
+                                )}
+                                {puede('categorias.eliminar') && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-danger btn-sm flex-fill"
+                                    title="Eliminar categoría"
+                                    onClick={() => deleteModal.openModal(categoria)}
+                                  >
+                                    <i className="bi bi-trash me-1"></i>
+                                    Eliminar
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-center text-muted small mt-auto py-2" title="No tienes permisos para modificar categorías">
+                                <i className="bi bi-lock me-1"></i>
+                                Solo lectura
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

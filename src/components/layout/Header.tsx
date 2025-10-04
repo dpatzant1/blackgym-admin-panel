@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import RolBadge from '../common/RolBadge';
 
 const Header: React.FC = () => {
   const { admin, logout } = useAuth();
@@ -60,6 +61,17 @@ const Header: React.FC = () => {
                     <small className="text-muted">
                       Usuario: {admin?.usuario}
                     </small>
+                  </span>
+                </li>
+                <li>
+                  <span className="dropdown-item-text d-flex align-items-center">
+                    <small className="text-muted me-2">Rol:</small>
+                    <RolBadge 
+                      rol={admin?.rol?.nombre} 
+                      descripcion={admin?.rol?.descripcion}
+                      showTooltip={true}
+                      size="sm"
+                    />
                   </span>
                 </li>
                 <li><hr className="dropdown-divider" /></li>

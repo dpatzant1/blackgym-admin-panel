@@ -12,7 +12,15 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'react-toastify/dist/ReactToastify.css'
 import App from './App.tsx'
 
-createRoot(document.getElementById('root')!).render(
+console.log('Main script is running, mounting React app');
+
+// Verificar que el elemento root existe
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  console.error('No se encontró el elemento "root" en el HTML');
+}
+
+createRoot(rootElement!).render(
   <StrictMode>
     <BrowserRouter>
       <App />

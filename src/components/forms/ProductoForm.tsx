@@ -10,13 +10,15 @@ interface ProductoFormProps {
   onSubmit: (data: ProductoFormData) => Promise<void>;
   isLoading?: boolean;
   submitText?: string;
+  disabled?: boolean;
 }
 
 const ProductoForm: React.FC<ProductoFormProps> = ({
   initialData,
   onSubmit,
   isLoading = false,
-  submitText = 'Guardar'
+  submitText = 'Guardar',
+  disabled = false
 }) => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loadingCategorias, setLoadingCategorias] = useState(true);
@@ -172,6 +174,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
           id="nombre"
           className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
           placeholder="Ej: Proteína Whey Gold"
+          disabled={disabled}
           {...register('nombre', {
             required: 'El nombre es obligatorio',
             minLength: {
@@ -199,6 +202,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
           className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
           rows={3}
           placeholder="Describe las características del producto..."
+          disabled={disabled}
           {...register('descripcion', {
             required: 'La descripción es obligatoria',
             minLength: {
@@ -230,6 +234,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
             min="0"
             className={`form-control ${errors.precio ? 'is-invalid' : ''}`}
             placeholder="0.00"
+            disabled={disabled}
             {...register('precio', {
               required: 'El precio es obligatorio',
               min: {
@@ -258,6 +263,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
           min="0"
           className={`form-control ${errors.stock ? 'is-invalid' : ''}`}
           placeholder="0"
+          disabled={disabled}
           {...register('stock', {
             required: 'El stock es obligatorio',
             min: {
@@ -312,6 +318,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
                             id={`categoria-${categoria.id}`}
                             value={categoria.id}
                             checked={(field.value || []).includes(categoria.id)}
+                            disabled={disabled}
                             onChange={(e) => {
                               const categoriaId = Number(e.target.value);
                               const currentValue = field.value || [];
@@ -348,6 +355,7 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
           id="imagen"
           className="form-control"
           accept="image/*"
+          disabled={disabled}
           onChange={handleImageChange}
         />
         <div className="form-text">
@@ -359,14 +367,16 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
           <div className="mt-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <span className="fw-semibold">Vista previa:</span>
-              <button
-                type="button"
-                className="btn btn-outline-danger btn-sm"
-                onClick={clearImage}
-              >
-                <i className="bi bi-trash me-1"></i>
-                Quitar imagen
-              </button>
+              {!disabled && (
+                <button
+                  type="button"
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={clearImage}
+                >
+                  <i className="bi bi-trash me-1"></i>
+                  Quitar imagen
+                </button>
+              )}
             </div>
             <div className="border rounded p-2 bg-light">
               <img
@@ -396,25 +406,27 @@ const ProductoForm: React.FC<ProductoFormProps> = ({
             onClick={() => window.history.back()}
             disabled={isLoading || uploadingImage}
           >
-            Cancelar
+            {disabled ? 'Volver' : 'Cancelar'}
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isLoading || uploadingImage || !imagePreview}
-          >
-            {isLoading || uploadingImage ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                {uploadingImage ? 'Subiendo imagen...' : 'Guardando...'}
-              </>
-            ) : (
-              <>
-                <i className="bi bi-check-circle me-2"></i>
-                {submitText}
-              </>
-            )}
-          </button>
+          {!disabled && (
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isLoading || uploadingImage || !imagePreview}
+            >
+              {isLoading || uploadingImage ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  {uploadingImage ? 'Subiendo imagen...' : 'Guardando...'}
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check-circle me-2"></i>
+                  {submitText}
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </form>

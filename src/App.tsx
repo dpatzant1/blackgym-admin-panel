@@ -5,11 +5,16 @@ import { ProtectedRoute } from './components/common'
 import Layout from './components/layout/Layout'
 import { LoginPage } from './pages/auth'
 import HomePage from './pages/HomePage'
+import SinPermisosPage from './pages/SinPermisosPage'
+import DashboardPage from './pages/DashboardPage'
 import { CategoriasListPage, CategoriaFormPage } from './pages/categorias'
 import { ProductosListPage, ProductoCreatePage, ProductoEditPage } from './pages/productos'
+import { AdministradoresListPage, AdministradorFormPage } from './pages/administradores'
+import { OrdenesListPage, OrdenDetallePage } from './pages/ordenes'
 import './App.css'
 
 function App() {
+  console.log('App component is rendering');
   return (
     <AuthProvider>
       <div className="App">
@@ -17,11 +22,29 @@ function App() {
           {/* Ruta pública - Login */}
           <Route path="/login" element={<LoginPage />} />
           
+          {/* Ruta de Sin Permisos */}
+          <Route path="/sin-permisos" element={
+            <ProtectedRoute>
+              <Layout>
+                <SinPermisosPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
           {/* Ruta por defecto - Dashboard principal */}
           <Route path="/" element={
             <ProtectedRoute>
               <Layout>
                 <HomePage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Ruta del Dashboard de Ventas */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout>
+                <DashboardPage />
               </Layout>
             </ProtectedRoute>
           } />
@@ -37,7 +60,7 @@ function App() {
           
           {/* Formulario de categorías - Nuevo */}
           <Route path="/categorias/nuevo" element={
-            <ProtectedRoute>
+            <ProtectedRoute requierePermiso="categorias.crear">
               <Layout>
                 <CategoriaFormPage />
               </Layout>
@@ -46,7 +69,7 @@ function App() {
           
           {/* Formulario de categorías - Editar */}
           <Route path="/categorias/:id/editar" element={
-            <ProtectedRoute>
+            <ProtectedRoute requierePermiso="categorias.editar">
               <Layout>
                 <CategoriaFormPage />
               </Layout>
@@ -64,7 +87,7 @@ function App() {
           
           {/* Formulario de productos - Nuevo */}
           <Route path="/productos/nuevo" element={
-            <ProtectedRoute>
+            <ProtectedRoute requierePermiso="productos.crear">
               <Layout>
                 <ProductoCreatePage />
               </Layout>
@@ -73,23 +96,57 @@ function App() {
           
           {/* Formulario de productos - Editar */}
           <Route path="/productos/editar/:id" element={
-            <ProtectedRoute>
+            <ProtectedRoute requierePermiso="productos.editar">
               <Layout>
                 <ProductoEditPage />
               </Layout>
             </ProtectedRoute>
           } />
           
-          {/* Rutas que se implementarán más adelante */}
-          {/* 
-          <Route path="/ordenes" element={
-            <ProtectedRoute>
+          {/* Rutas de administradores - Solo para administradores */}
+          <Route path="/administradores" element={
+            <ProtectedRoute requiereAdmin={true}>
               <Layout>
-                <OrdenesPage />
+                <AdministradoresListPage />
               </Layout>
             </ProtectedRoute>
           } />
-          */}
+          
+          {/* Crear administrador */}
+          <Route path="/administradores/crear" element={
+            <ProtectedRoute requiereAdmin={true}>
+              <Layout>
+                <AdministradorFormPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Editar administrador */}
+          <Route path="/administradores/:id/editar" element={
+            <ProtectedRoute requiereAdmin={true}>
+              <Layout>
+                <AdministradorFormPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Rutas de órdenes */}
+          <Route path="/ordenes" element={
+            <ProtectedRoute>
+              <Layout>
+                <OrdenesListPage />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Detalle de orden */}
+          <Route path="/ordenes/:id" element={
+            <ProtectedRoute>
+              <Layout>
+                <OrdenDetallePage />
+              </Layout>
+            </ProtectedRoute>
+          } />
         </Routes>
 
         {/* Configuración de notificaciones */}
