@@ -40,9 +40,9 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* Ruta del Dashboard de Ventas */}
+          {/* Ruta del Dashboard de Ventas - SOLO ADMINISTRADORES */}
           <Route path="/dashboard" element={
-            <ProtectedRoute>
+            <ProtectedRoute requierePermiso="dashboard.leer">
               <Layout>
                 <DashboardPage />
               </Layout>

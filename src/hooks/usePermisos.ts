@@ -26,12 +26,14 @@ export const usePermisos = () => {
       'ordenes.cambiar_estado',
       'bitacora.leer',
       'uploads.subir'
+      // NO tiene dashboard.leer - Los gerentes NO pueden ver el dashboard
     ],
     'asesor de ventas': [
       'productos.leer',
       'categorias.leer',
       'ordenes.leer',
       'ordenes.crear'
+      // NO tiene dashboard.leer - Los asesores NO pueden ver el dashboard
     ]
   };
 

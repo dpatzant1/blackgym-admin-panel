@@ -48,16 +48,18 @@ export interface OrdenesResponse {
 
 /**
  * Obtiene todas las órdenes con paginación y ordenamiento
+ * NOTA: El ordenamiento se hace en el frontend por mayor control y consistencia
  */
 export const obtenerOrdenes = async (params: ObtenerOrdenesParams = {}): Promise<Orden[]> => {
   // Si no se especifica límite, pedimos un número alto para obtener todas
   const queryParams = new URLSearchParams();
   
-  // Usar valores por defecto que traigan todas las órdenes ordenadas
+  // Traer todas las órdenes sin ordenar (lo haremos en el frontend)
   queryParams.append('page', String(params.page || 1));
   queryParams.append('limit', String(params.limit || 10000)); // Límite alto para obtener todas
-  queryParams.append('sortBy', params.sortBy || 'id');
-  queryParams.append('sortOrder', params.sortOrder || 'desc'); // Más recientes primero
+  
+  // No enviamos sortBy ni sortOrder al backend, ordenaremos en el frontend
+  // Esto asegura consistencia y evita problemas de sincronización
   
   if (params.estado && params.estado !== 'todas') {
     queryParams.append('estado', params.estado);

@@ -38,12 +38,15 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
           
-          <li className="nav-item mt-1">
-            <Link to="/dashboard" className={getLinkClasses('/dashboard')}>
-              <i className="bi bi-graph-up me-3"></i>
-              <span>Dashboard Ventas</span>
-            </Link>
-          </li>
+          {/* Dashboard de Ventas - Solo visible para administradores */}
+          {puede('dashboard.leer') && (
+            <li className="nav-item mt-1">
+              <Link to="/dashboard" className={getLinkClasses('/dashboard')}>
+                <i className="bi bi-graph-up me-3"></i>
+                <span>Dashboard Ventas</span>
+              </Link>
+            </li>
+          )}
           
           <li className="nav-item mt-1">
             <Link to="/categorias" className={getLinkClasses('/categorias')}>

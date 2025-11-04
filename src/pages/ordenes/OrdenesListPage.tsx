@@ -22,18 +22,10 @@ const OrdenesListPage: React.FC = () => {
       setLoading(true);
       
       const params: ObtenerOrdenesParams = {
-        sortBy: ordenarPor,
-        sortOrder: direccionOrden,
         estado: filtroEstado !== 'todas' ? filtroEstado : undefined
       };
       
       const data = await obtenerOrdenes(params);
-      console.log('📦 Órdenes recibidas:', data.length);
-      console.log('📅 Primera orden (si existe):', data[0]);
-      if (data[0]) {
-        console.log('📅 Fecha de primera orden:', data[0].fecha);
-        console.log('📅 Tipo de fecha:', typeof data[0].fecha);
-      }
       setOrdenes(data);
     } catch (error) {
       console.error('Error al cargar órdenes:', error);
@@ -41,7 +33,7 @@ const OrdenesListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [filtroEstado, ordenarPor, direccionOrden]);
+  }, [filtroEstado]);
 
   useEffect(() => {
     cargarOrdenes();
@@ -52,16 +44,48 @@ const OrdenesListPage: React.FC = () => {
     ? ordenes 
     : ordenes.filter(orden => orden.estado === filtroEstado);
 
+  // Ordenar las órdenes filtradas según los criterios seleccionados
+  const ordenesOrdenadas = [...ordenesFiltradas].sort((a, b) => {
+    let comparacion = 0;
+
+    switch (ordenarPor) {
+      case 'id':
+        comparacion = a.id - b.id;
+        break;
+      
+      case 'fecha': {
+        const fechaA = new Date(a.fecha).getTime();
+        const fechaB = new Date(b.fecha).getTime();
+        comparacion = fechaA - fechaB;
+        break;
+      }
+      
+      case 'total':
+        comparacion = a.total - b.total;
+        break;
+      
+      case 'cliente':
+        comparacion = a.cliente.localeCompare(b.cliente, 'es', { sensitivity: 'base' });
+        break;
+      
+      default:
+        comparacion = 0;
+    }
+
+    // Aplicar dirección de ordenamiento
+    return direccionOrden === 'asc' ? comparacion : -comparacion;
+  });
+
   // Calcular paginación
-  const totalPaginas = Math.ceil(ordenesFiltradas.length / ordenesPorPagina);
+  const totalPaginas = Math.ceil(ordenesOrdenadas.length / ordenesPorPagina);
   const indiceInicio = (paginaActual - 1) * ordenesPorPagina;
   const indiceFin = indiceInicio + ordenesPorPagina;
-  const ordenesPaginadas = ordenesFiltradas.slice(indiceInicio, indiceFin);
+  const ordenesPaginadas = ordenesOrdenadas.slice(indiceInicio, indiceFin);
 
-  // Resetear a página 1 cuando cambia el filtro
+  // Resetear a página 1 cuando cambia el filtro o el ordenamiento
   useEffect(() => {
     setPaginaActual(1);
-  }, [filtroEstado]);
+  }, [filtroEstado, ordenarPor, direccionOrden]);
 
   // Funciones de navegación
   const irAPagina = (numeroPagina: number) => {
@@ -195,14 +219,14 @@ const OrdenesListPage: React.FC = () => {
                 <option value={25}>25 órdenes</option>
                 <option value={50}>50 órdenes</option>
                 <option value={100}>100 órdenes</option>
-                <option value={ordenesFiltradas.length}>Todas ({ordenesFiltradas.length})</option>
+                <option value={ordenesOrdenadas.length}>Todas ({ordenesOrdenadas.length})</option>
               </select>
             </div>
           </div>
           <div className="row mt-2">
             <div className="col-12 text-center">
               <small className="text-muted">
-                Mostrando <strong>{indiceInicio + 1}</strong> a <strong>{Math.min(indiceFin, ordenesFiltradas.length)}</strong> de <strong>{ordenesFiltradas.length}</strong> órdenes filtradas
+                Mostrando <strong>{indiceInicio + 1}</strong> a <strong>{Math.min(indiceFin, ordenesOrdenadas.length)}</strong> de <strong>{ordenesOrdenadas.length}</strong> órdenes filtradas
                 {filtroEstado !== 'todas' && ` (${ordenes.length} totales)`}
               </small>
             </div>
@@ -220,7 +244,7 @@ const OrdenesListPage: React.FC = () => {
               </div>
               <p className="text-muted mt-3">Cargando órdenes...</p>
             </div>
-          ) : ordenesFiltradas.length === 0 ? (
+          ) : ordenesOrdenadas.length === 0 ? (
             <div className="text-center py-5">
               <i className="bi bi-inbox display-1 text-muted"></i>
               <p className="text-muted mt-3">
@@ -313,7 +337,7 @@ const OrdenesListPage: React.FC = () => {
                           >
                             <i className="bi bi-eye"></i>
                           </Link>
-                          {puede('ordenes.editar') && (
+                            {/* {puede('ordenes.editar') && (
                             <Link
                               to={`/ordenes/${orden.id}/editar`}
                               className="btn btn-outline-primary"
@@ -321,7 +345,7 @@ const OrdenesListPage: React.FC = () => {
                             >
                               <i className="bi bi-pencil"></i>
                             </Link>
-                          )}
+                            )} */}
                         </div>
                       </td>
                     </tr>
@@ -333,7 +357,7 @@ const OrdenesListPage: React.FC = () => {
         </div>
 
         {/* Controles de Paginación */}
-        {!loading && ordenesFiltradas.length > 0 && totalPaginas > 1 && (
+        {!loading && ordenesOrdenadas.length > 0 && totalPaginas > 1 && (
           <div className="card-footer">
             <nav aria-label="Paginación de órdenes">
               <ul className="pagination pagination-sm mb-0 justify-content-center">
